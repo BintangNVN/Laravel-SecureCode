@@ -1,75 +1,279 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Ticketing') - {{ config('app.name') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700" rel="stylesheet" />
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: { extend: { fontFamily: { sans: ['DM Sans', 'system-ui', 'sans-serif'] } } }
-            }
-        </script>
-    @endif
+    <title>@yield('title', 'Secure Ticketing') - SMK Wikrama Bogor</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
-        body { font-family: 'DM Sans', system-ui, sans-serif; }
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .footer {
+            background-color: #212529;
+            color: #fff;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        pre code {
+            font-size: 0.85rem;
+        }
     </style>
+
+    {{-- Stack untuk CSS tambahan per halaman --}}
     @stack('styles')
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
-    <nav class="bg-white border-b border-slate-200 shadow-sm">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <a href="{{ route('tickets.index') }}" class="flex items-center gap-2 text-slate-800 hover:text-indigo-600 transition">
-                    <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                    <span class="font-semibold text-lg">Ticketing</span>
-                </a>
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('tickets.index') }}" class="text-slate-600 hover:text-indigo-600 font-medium transition">Daftar Tiket</a>
-                    <a href="{{ route('tickets.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                        Buat Tiket
-                    </a>
-                </div>
+
+<body>
+    {{-- ============================================ --}}
+    {{-- NAVIGATION --}}
+    {{-- ============================================ --}}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url('/') }}">
+                <i class="bi bi-shield-lock"></i> Secure Ticketing
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {{-- Tickets --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}"
+                            href="{{ route('tickets.create') }}">
+                            <i class="bi bi-ticket-detailed"></i> Tickets
+                        </a>
+                    </li>
+
+                    {{-- Demo Blade (Hari 4) --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('demo-blade.*') ? 'active' : '' }}"
+                            href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-code-slash"></i> Demo Blade
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('demo-blade.index') }}">
+                                    <i class="bi bi-house"></i> Overview
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ route('demo-blade.directives') }}">
+                                    <i class="bi bi-signpost-split"></i> Directives
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('demo-blade.components') }}">
+                                    <i class="bi bi-puzzle"></i> Components
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('demo-blade.includes') }}">
+                                    <i class="bi bi-box-arrow-in-right"></i> Include & Each
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('demo-blade.stacks') }}">
+                                    <i class="bi bi-stack"></i> Stacks & Push
+                                </a></li>
+                        </ul>
+                    </li>
+
+                    {{-- XSS Lab (Hari 4) --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('xss-lab.*') ? 'active' : '' }}"
+                            href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-shield-exclamation"></i> XSS Lab
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('xss-lab.index') }}">
+                                    <i class="bi bi-house"></i> Overview
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="dropdown-header">Reflected XSS</li>
+                            <li><a class="dropdown-item text-danger"
+                                    href="{{ route('xss-lab.reflected.vulnerable') }}">
+                                    <i class="bi bi-unlock"></i> Vulnerable
+                                </a></li>
+                            <li><a class="dropdown-item text-success" href="{{ route('xss-lab.reflected.secure') }}">
+                                    <i class="bi bi-lock"></i> Secure
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="dropdown-header">Stored XSS</li>
+                            <li><a class="dropdown-item text-danger" href="{{ route('xss-lab.stored.vulnerable') }}">
+                                    <i class="bi bi-unlock"></i> Vulnerable
+                                </a></li>
+                            <li><a class="dropdown-item text-success" href="{{ route('xss-lab.stored.secure') }}">
+                                    <i class="bi bi-lock"></i> Secure
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="dropdown-header">DOM-Based XSS</li>
+                            <li><a class="dropdown-item text-danger" href="{{ route('xss-lab.dom.vulnerable') }}">
+                                    <i class="bi bi-unlock"></i> Vulnerable
+                                </a></li>
+                            <li><a class="dropdown-item text-success" href="{{ route('xss-lab.dom.secure') }}">
+                                    <i class="bi bi-lock"></i> Secure
+                                </a></li>
+                        </ul>
+                    </li>
+
+                    {{-- Security Testing (Hari 5) - NEW --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('security-testing.*') ? 'active' : '' }}"
+                            href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-shield-shaded"></i> Security Testing
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('security-testing.index') }}">
+                                    <i class="bi bi-house"></i> Dashboard
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ route('security-testing.xss') }}">
+                                    <i class="bi bi-shield-exclamation text-danger"></i> XSS Test
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('security-testing.csrf') }}">
+                                    <i class="bi bi-key text-primary"></i> CSRF Test
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('security-testing.headers') }}">
+                                    <i class="bi bi-server text-info"></i> Headers Test
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ route('security-testing.audit') }}">
+                                    <i class="bi bi-clipboard-check text-warning"></i> Audit Checklist
+                                </a></li>
+                        </ul>
+                    </li>
+
+                    {{-- Input Validation  --}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('validation-lab.*') ? 'active' : '' }}"
+                            href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-check-circle"></i> Input Validation
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('validation-lab.index') }}">
+                                    <i class="bi bi-house"></i> Dashboard
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ route('validation-lab.vulnerable') }}">
+                                    <i class="bi bi-shield-exclamation text-danger"></i> Vulnerable Form
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ route('validation-lab.secure') }}">
+                                    <i class="bi bi-shield-check text-success"></i> Secure Form
+                                </a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> User Demo
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">
+                                    <i class="bi bi-person"></i> Profile
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {{-- ============================================ --}}
+    {{-- MAIN CONTENT --}}
+    {{-- ============================================ --}}
+    <main class="container py-4">
+        {{-- Flash Messages --}}
         @if (session('success'))
-            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg flex items-center gap-3" role="alert">
-                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {{ session('success') }}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        {{-- Validation Errors --}}
         @if ($errors->any())
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" role="alert">
-                <p class="font-medium mb-2">Terjadi kesalahan:</p>
-                <ul class="list-disc list-inside space-y-1 text-sm">
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> <strong>Terjadi kesalahan:</strong>
+                <ul class="mb-0 mt-2">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
         @endif
+
+        {{-- Page Content --}}
         @yield('content')
     </main>
 
-    <footer class="border-t border-slate-200 bg-white mt-12">
-        <div class="max-w-5xl mx-auto px-4 py-6 text-center text-slate-500 text-sm">
-            &copy; {{ date('Y') }} Copyright — System Ticketing
+    {{-- ============================================ --}}
+    {{-- FOOTER --}}
+    {{-- ============================================ --}}
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-1">
+                <i class="bi bi-shield-lock"></i> Secure Ticketing System
+            </p>
+            <p class="mb-0 text-muted">
+                &copy; {{ date('Y') }} Bootcamp Secure Coding - SMK Wikrama Bogor
+            </p>
+            <p class="mb-0 mt-2">
+                <small class="text-muted">
+                    <span class="badge bg-success">Hari 3: MVC</span>
+                    <span class="badge bg-info">Hari 4: Blade & XSS</span>
+                    <span class="badge bg-warning text-dark">Hari 5: Lab Lengkap</span>
+                </small>
+            </p>
         </div>
     </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    {{-- Stack untuk JavaScript tambahan per halaman --}}
     @stack('scripts')
 </body>
+
 </html>

@@ -54,4 +54,8 @@ class Ticket extends Model
     {
         return ucfirst($this->priority);
     }
+        public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
