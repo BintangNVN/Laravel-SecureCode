@@ -1,0 +1,4 @@
+Pastikan nyalakan mode "show hidden file" di direktori ini supaya bisa melihat file/folder tersembunyi (ada foler .github di source code ini)
+Copy semua file dan folder ke root proyek secure ticketing
+Sesuaikan setup Database di file phpunit.xml.dist sesuai setup Database masing-masing, setup biasa berada di file .env
+Ganti nama file phpunit.xml.dist menjadi phpunit.xml  
