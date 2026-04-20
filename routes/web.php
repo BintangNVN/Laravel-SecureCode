@@ -3,6 +3,8 @@
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CsrfLabController;
 use App\Http\Controllers\DemoBladeController;
+use App\Http\Controllers\Lab\SecureController;
+use App\Http\Controllers\Lab\VulnerableController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecurityTestController;
 use App\Http\Controllers\SqliLabController;
@@ -12,6 +14,8 @@ use App\Http\Controllers\VulnerableAuth\VulnerableLoginController;
 use App\Http\Controllers\VulnerableAuth\VulnerableRegisterController;
 use App\Http\Controllers\XSSLabController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FileUpload\SecureUploadController;
+use App\Http\Controllers\FileUpload\VulnerableUploadController;
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
@@ -464,6 +468,157 @@ Route::prefix('vulnerable')->name('vulnerable.')->group(function () {
 });
 
 // ============================================================================
+// BAC/IDOR Lab Routes (Minggu 4 Hari 4 - Broken Access Control)
+// ============================================================================
+
+// Public routes (tidak perlu login untuk baca materi)
+Route::prefix('bac-lab')->name('bac-lab.')->group(function () {
+
+    // Lab Index - Overview & Pilihan Secure/Vulnerable (public)
+    Route::get('/', function () {
+        return view('bac-lab.index');
+    })->name('home');
+
+    // Comparison Page (public)
+    Route::get('/comparison', function () {
+        return view('bac-lab.comparison');
+    })->name('comparison');
+
+    // Login Pages untuk masing-masing versi (public)
+    Route::get('/vulnerable/login', function () {
+        return view('bac-lab.vulnerable.login');
+    })->name('vulnerable.login');
+
+    Route::get('/secure/login', function () {
+        return view('bac-lab.secure.login');
+    })->name('secure.login');
+});
+
+// Protected routes (perlu login untuk demo)
+Route::middleware('auth')->prefix('bac-lab')->name('bac-lab.')->group(function () {
+
+    // ========================================
+    // VULNERABLE VERSION (IDOR Demo)
+    // ========================================
+    // ⚠️ Route ini SENGAJA dibuat vulnerable untuk demonstrasi
+    // JANGAN gunakan pattern ini di production!
+
+    Route::prefix('vulnerable')->name('vulnerable.')->group(function () {
+
+        Route::get('/tickets', [VulnerableController::class, 'index'])
+            ->name('tickets.index');
+
+        Route::get('/tickets/{id}', [VulnerableController::class, 'show'])
+            ->name('tickets.show');
+
+        Route::get('/tickets/{id}/edit', [VulnerableController::class, 'edit'])
+            ->name('tickets.edit');
+
+        Route::put('/tickets/{id}', [VulnerableController::class, 'update'])
+            ->name('tickets.update');
+
+        Route::delete('/tickets/{id}', [VulnerableController::class, 'destroy'])
+            ->name('tickets.destroy');
+    });
+
+    // ========================================
+    // SECURE VERSION (dengan Policy)
+    // ========================================
+    // ✅ Route ini menggunakan Policy untuk authorization
+    // GUNAKAN pattern ini di production!
+
+    Route::prefix('secure')->name('secure.')->group(function () {
+
+        // Resource route dengan route model binding
+        // Policy akan otomatis di-check via authorizeResource()
+        Route::resource('tickets', SecureController::class)
+            ->parameters(['tickets' => 'ticket']);
+    });
+});
+
+// ============================================================================
+// Error Handling Demo (Minggu 5 Hari 2 - Error Handling & Information Disclosure)
+// ============================================================================
+
+Route::get('/error-handling-demo', function () {
+    return view('error-handling-demo.index');
+})->name('error-handling-demo');
+
+// ============================================================================
 // Secure Auth Routes (Laravel Breeze)
 // ============================================================================
 require __DIR__.'/auth.php';
+
+Route::prefix('file-upload-lab')->name('file-upload-lab.')->group(function () {
+    // Lab Index
+    Route::get('/', function () {
+        return view('file-upload-lab.index');
+    })->name('index');
+
+    // Overview/Materi (Logging & Upload Basics)
+    Route::get('/overview/{section?}', function ($section = 'logging') {
+        $validSections = ['logging', 'upload-basics'];
+        if (! in_array($section, $validSections)) {
+            $section = 'logging';
+        }
+
+        return view('file-upload-lab.overview', compact('section'));
+    })->name('overview');
+
+    // =============================================
+    // VULNERABLE UPLOAD LAB (Educational Purposes)
+    // =============================================
+    Route::prefix('vulnerable')->name('vulnerable.')->group(function () {
+        // Lab index
+        Route::get('/', [VulnerableUploadController::class, 'index'])->name('index');
+
+        // Level 1: No validation
+        Route::match(['get', 'post'], '/level1', [VulnerableUploadController::class, 'level1'])
+            ->name('level1');
+
+        // Level 2: Client-side only
+        Route::match(['get', 'post'], '/level2', [VulnerableUploadController::class, 'level2'])
+            ->name('level2');
+
+        // Level 3: Blacklist bypass
+        Route::match(['get', 'post'], '/level3', [VulnerableUploadController::class, 'level3'])
+            ->name('level3');
+
+        // Level 4: MIME type bypass
+        Route::match(['get', 'post'], '/level4', [VulnerableUploadController::class, 'level4'])
+            ->name('level4');
+
+        // Level 5: Magic bytes bypass
+        Route::match(['get', 'post'], '/level5', [VulnerableUploadController::class, 'level5'])
+            ->name('level5');
+
+        // View uploaded files
+        Route::get('/files', [VulnerableUploadController::class, 'listFiles'])->name('files');
+
+        // Clear all uploads
+        Route::delete('/clear', [VulnerableUploadController::class, 'clearUploads'])->name('clear');
+    });
+
+    // =============================================
+    // SECURE UPLOAD IMPLEMENTATION
+    // =============================================
+    Route::prefix('secure')->name('secure.')->group(function () {
+        // Secure upload demo
+        Route::get('/', [SecureUploadController::class, 'index'])->name('index');
+
+        // Upload file
+        Route::post('/upload', [SecureUploadController::class, 'upload'])->name('upload');
+
+        // Serve file (via controller)
+        Route::get('/file/{filename}', [SecureUploadController::class, 'serve'])->name('serve');
+
+        // Download file
+        Route::get('/download/{filename}', [SecureUploadController::class, 'download'])->name('download');
+
+        // Delete file
+        Route::delete('/file/{filename}', [SecureUploadController::class, 'delete'])->name('delete');
+
+        // Clear all
+        Route::delete('/clear', [SecureUploadController::class, 'clearAll'])->name('clear');
+    });
+});
